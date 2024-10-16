@@ -8,6 +8,7 @@ import { collection, addDoc } from "firebase/firestore"; // Firestore methods
 const Dashboard = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -91,6 +92,7 @@ const Dashboard = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     // Check if at least one checkbox is selected
     if (formData.openFor.length === 0) {
       alert("Please select at least one option from BTech, IDD, or MTech.");
@@ -136,6 +138,7 @@ const Dashboard = () => {
         finalHiringNumber: "",
         iitName: "", // Reset IIT Name field
       });
+      setLoading(false);
     } catch (error) {
       console.error("Error submitting form: ", error);
       alert("Error submitting data, please try again.");
@@ -295,7 +298,9 @@ const Dashboard = () => {
           />
         </div>
 
-        <button type="submit">Submit</button>
+        <button type="submit" disabled={loading}>
+          {loading ? "Submitting..." : "Submit"}
+        </button>
       </form>
     </div>
   );
