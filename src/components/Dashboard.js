@@ -4,6 +4,20 @@ import { useAuth } from "../AuthContext";
 import { useNavigate } from "react-router-dom";
 import { db, auth } from "../firebase"; // Import Firestore and Firebase Auth
 import { collection, addDoc } from "firebase/firestore"; // Firestore methods
+import { 
+  Box, 
+  Button, 
+  Checkbox, 
+  Container, 
+  FormControlLabel, 
+  Radio, 
+  RadioGroup, 
+  TextField, 
+  Typography, 
+  CircularProgress 
+} from "@mui/material";
+import { StyledContainer, StyledForm, StyledTextField, StyledButton } from "./DashboardStyles"; // Import styled components
+
 
 const Dashboard = () => {
   const { currentUser } = useAuth();
@@ -146,163 +160,187 @@ const Dashboard = () => {
   };
 
   return (
-    <div>
-      <h2>Welcome, {currentUser.email}</h2>
-      <button onClick={handleLogout}>Log Out</button>
+    <StyledContainer>
+      <Box 
+  sx={{ 
+    display: "flex", 
+    justifyContent: { xs: "center", md: "space-between" }, 
+    alignItems: "center", 
+    flexDirection: { xs: "column", md: "row" },  // Stack vertically on small screens
+    width: "52%", // Ensure it uses full width
+    marginBottom: 2
+  }}
+>
+      <Typography variant="h5">
+        Welcome, {currentUser.email.split('@')[0]}
+      </Typography>
+      <StyledButton onClick={handleLogout} variant="contained" color="secondary">
+        Log Out
+      </StyledButton>
+    </Box>
 
-      <form onSubmit={handleSubmit}>
-        {/* Company Name */}
-        <div>
-          <label>Company Name:</label>
-          <input
-            type="text"
-            name="companyName"
-            value={formData.companyName}
-            onChange={handleChange}
-            placeholder="Enter company name"
-            required
-          />
-        </div>
+    <StyledForm onSubmit={handleSubmit}>
+      <TextField
+        label="Company Name"
+        name="companyName"
+        value={formData.companyName}
+        onChange={handleChange}
+        fullWidth
+        required
+      />
+<Box sx={{ display: "flex", flexDirection: "row", gap: 2,marginTop:1}}>
+      <Typography variant="body1" sx={{ marginTop: 1.1 }}>
+        Intern or FTE:
+      </Typography>
+     
+      <RadioGroup
+        name="jobType"
+        value={formData.jobType}
+        onChange={handleChange}
+        sx={{ flexDirection: "row",justifyContent:"space-around", marginBottom: 2 }}
+      > 
+        <FormControlLabel value="Intern" control={<Radio />} label="Intern" />
+        <FormControlLabel value="FTE" control={<Radio />} label="FTE" />
+      </RadioGroup>
+      </Box>
+      <StyledTextField>
+        <TextField
+          label="Stipend Amount"
+          name="stipend"
+          type="number"
+          value={formData.stipend}
+          onChange={handleChange}
+          fullWidth
+          required
+        />
+      </StyledTextField>
 
-        {/* Intern or FTE */}
-        <div>
-          <label>Intern or FTE:</label>
-          <input
-            type="radio"
-            name="jobType"
-            value="Intern"
-            checked={formData.jobType === "Intern"}
-            onChange={handleChange}
-          />{" "}
-          Intern
-          <input
-            type="radio"
-            name="jobType"
-            value="FTE"
-            checked={formData.jobType === "FTE"}
-            onChange={handleChange}
-          />{" "}
-          FTE
-        </div>
+      <StyledTextField>
+        <TextField
+          label="HR Details (Optional)"
+          name="hrDetails"
+          value={formData.hrDetails}
+          onChange={handleChange}
+          fullWidth
+        />
+      </StyledTextField>
 
-        {/* Stipend Amount */}
-        <div>
-          <label>Stipend Amount:</label>
-          <input
-            type="number"
-            name="stipend"
-            value={formData.stipend}
-            onChange={handleChange}
-            placeholder="Enter stipend amount"
-            required
-          />
-        </div>
-
-        {/* HR Details (Optional) */}
-        <div>
-          <label>HR Details (if available):</label>
-          <input
-            type="text"
-            name="hrDetails"
-            value={formData.hrDetails}
-            onChange={handleChange}
-            placeholder="Enter HR contact details"
-          />
-        </div>
-
-        {/* Open For (BTech, IDD, MTech) */}
-        <div>
-          <label>Open For:</label>
-          <input
-            type="checkbox"
-            name="openFor"
-            value="BTech"
+      
+      <Box sx={{ display: "flex", flexDirection: "row", gap: 2, marginBottom: 2}}>
+      <Typography variant="body1" sx={{ marginTop: 1 }}>
+        Open For:
+      </Typography>
+      <Box sx={{ display: "flex", flexGrow: 1, justifyContent: "space-evenly" }}>
+      <FormControlLabel
+        control={
+          <Checkbox
             checked={formData.openFor.includes("BTech")}
             onChange={handleChange}
-          />{" "}
-          BTech
-          <input
-            type="checkbox"
             name="openFor"
-            value="IDD"
+            value="BTech"
+          />
+        }
+        label="BTech"
+      />
+      <FormControlLabel
+        control={
+          <Checkbox
             checked={formData.openFor.includes("IDD")}
             onChange={handleChange}
-          />{" "}
-          IDD
-          <input
-            type="checkbox"
             name="openFor"
-            value="MTech"
+            value="IDD"
+          />
+        }
+        label="IDD"
+      />
+      <FormControlLabel
+        control={
+          <Checkbox
             checked={formData.openFor.includes("MTech")}
             onChange={handleChange}
-          />{" "}
-          MTech
-        </div>
-
-        {/* PPT Date */}
-        <div>
-          <label>PPT Date:</label>
-          <input
-            type="date"
-            name="pptDate"
-            value={formData.pptDate}
-            onChange={handleChange}
+            name="openFor"
+            value="MTech"
           />
-        </div>
+        }
+        label="MTech"
+      />
+      </Box>
+</Box>
+      <StyledTextField>
+        <TextField
+          label="PPT Date"
+          name="pptDate"
+          type="date"
+          value={formData.pptDate}
+          onChange={handleChange}
+          fullWidth
+          InputLabelProps={{
+            shrink: true,
+          }}
+        />
+      </StyledTextField>
 
-        {/* OA Date */}
-        <div>
-          <label>OA Date:</label>
-          <input
-            type="date"
-            name="oaDate"
-            value={formData.oaDate}
-            onChange={handleChange}
-          />
-        </div>
+      <StyledTextField>
+        <TextField
+          label="OA Date"
+          name="oaDate"
+          type="date"
+          value={formData.oaDate}
+          onChange={handleChange}
+          fullWidth
+          InputLabelProps={{
+            shrink: true,
+          }}
+        />
+      </StyledTextField>
 
-        {/* Mail Screenshot (file upload) */}
-        <div>
-          <label>Mail Screenshot or any proof of opening for Mtechs :</label>
-          <input
-            type="file"
-            name="mailScreenshot"
-            onChange={handleChange}
-            accept="image/*"
-            required
-          />
-        </div>
+      <StyledTextField>
+        <TextField
+          label="Mail Screenshot"
+          name="mailScreenshot"
+          type="file"
+          onChange={handleChange}
+          fullWidth
+          InputLabelProps={{
+            shrink: true,
+          }}
+          required
+        />
+      </StyledTextField>
 
-        {/* Final Hiring Number */}
-        <div>
-          <label>Final Hiring Number:</label>
-          <input
-            type="number"
-            name="finalHiringNumber"
-            value={formData.finalHiringNumber}
-            onChange={handleChange}
-            placeholder="To be edited later"
-          />
-        </div>
+      <StyledTextField>
+        <TextField
+          label="Final Hiring Number"
+          name="finalHiringNumber"
+          type="number"
+          value={formData.finalHiringNumber}
+          onChange={handleChange}
+          fullWidth
+        />
+      </StyledTextField>
 
-        {/* IIT Name */}
-        <div>
-          <label>IIT Name:</label>
-          <input
-            type="text"
-            name="iitName"
-            value={formData.iitName}
-            onChange={handleChange}
-            placeholder="Enter IIT name"
-            required
-          />
-        </div>
+      <StyledTextField>
+        <TextField
+          label="IIT Name"
+          name="iitName"
+          value={formData.iitName}
+          onChange={handleChange}
+          fullWidth
+          required
+        />
+      </StyledTextField>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Submitting..." : "Submit"}
-        </button>
-      </form>
-    </div>
+      <StyledButton
+        type="submit"
+        variant="contained"
+        color="primary"
+        fullWidth
+        disabled={loading}
+      >
+        {loading ? <CircularProgress size={24} /> : "Submit"}
+      </StyledButton>
+    </StyledForm>
+  </StyledContainer>
   );
 };
 
