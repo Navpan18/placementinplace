@@ -260,7 +260,7 @@ const Dashboard = () => {
 
         {/* Mail Screenshot (file upload) */}
         <div>
-          <label>Mail Screenshot or any proof :</label>
+          <label>Mail Screenshot or any proof of opening for Mtechs :</label>
           <input
             type="file"
             name="mailScreenshot"
