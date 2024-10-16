@@ -144,12 +144,16 @@ const Dashboard = () => {
       alert("Error submitting data, please try again.");
     }
   };
-
+  // Navigate to My Listings
+  const goToMyListings = () => {
+    navigate("/mylistings");
+  };
   return (
     <div>
       <h2>Welcome, {currentUser.email}</h2>
       <button onClick={handleLogout}>Log Out</button>
-
+      {/* Add a button to route to the My Listings page */}
+      <button onClick={goToMyListings}>View My Listings</button>
       <form onSubmit={handleSubmit}>
         {/* Company Name */}
         <div>

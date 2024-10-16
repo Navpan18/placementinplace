@@ -4,12 +4,13 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import { AuthProvider } from "./AuthContext";
-
+import MyListings from "./components/MyListings";
 function App() {
   return (
     <Router>
       <AuthProvider>
         <Routes>
+          <Route path="/mylistings" element={<MyListings />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/" element={<Login />} />
