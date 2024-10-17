@@ -151,7 +151,7 @@ const Dashboard = () => {
 
       // Submit the form data to Google Sheets
       const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbyv4XT3UTI1i8CDlB-bwpEtH0dmOQEaVUcq0HXjj1pdF_1shoG1SlHtkb4K9pFgAK2sKg/exec",
+        "https://script.google.com/macros/s/AKfycbwa0O1F3lOXF-QBiAgWUpAkKtmXz5-8yIzdBkXS0dmPuwu239_pofG-kNgs6Dzca52zUg/exec",
         {
           method: "POST",
           body: newFormData, // Send the manually created FormData object
@@ -371,5 +371,4 @@ const Dashboard = () => {
     </div>
   );
 };
-
 export default Dashboard;
