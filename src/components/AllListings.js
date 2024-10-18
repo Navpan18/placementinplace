@@ -2,6 +2,18 @@ import React, { useEffect, useState, useCallback } from "react";
 import { db } from "../firebase"; // Firestore instance
 import Modal from "react-modal"; // Import Modal component
 import { collection, getDocs } from "firebase/firestore"; // Firestore methods
+import { useNavigate } from "react-router-dom";
+import {
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Card,
+  CardContent,
+  CardActions,
+  Grid,
+} from "@mui/material";
 
 // Modal styling
 const customModalStyles = {
@@ -22,13 +34,16 @@ const customModalStyles = {
 };
 
 const AllListings = () => {
+  const navigate = useNavigate();
   const [listings, setListings] = useState([]); // All listings
   const [filteredListings, setFilteredListings] = useState([]); // Filtered listings based on search
   const [modalIsOpen, setModalIsOpen] = useState(false); // Control modal visibility
   const [selectedListing, setSelectedListing] = useState(null); // The selected IIT listing for the modal
   const [searchTerm, setSearchTerm] = useState(""); // For search functionality
   const [sortOrder, setSortOrder] = useState("asc"); // Default sort order (ascending)
-
+  const goToDashboard = () => {
+    navigate("/dashboard");
+  };
   // Fetch all listings from Firebase
   const fetchListings = useCallback(async () => {
     try {
@@ -109,127 +124,145 @@ const AllListings = () => {
   };
 
   return (
-    <div>
-      <h2>All Company Listings</h2>
+    <Container maxWidth="lg">
+      <Box sx={{ my: 4 }}>
+        <Typography variant="h4" gutterBottom>
+          All Company Listings
+        </Typography>
+        <Button onClick={goToDashboard} variant="outlined" color="secondary">
+          Back
+        </Button>
+        {/* Search Bar */}
+        <TextField
+          label="Search company..."
+          variant="outlined"
+          fullWidth
+          margin="normal"
+          value={searchTerm}
+          onChange={handleSearchChange}
+        />
 
-      {/* Search Bar */}
-      <input
-        type="text"
-        placeholder="Search company..."
-        value={searchTerm}
-        onChange={handleSearchChange}
-      />
+        {/* Sort options */}
+        <Box sx={{ my: 2 }}>
+          <Typography variant="h6">Sort by:</Typography>
+          <Button onClick={() => handleSort("companyName")} variant="contained" sx={{ mr: 1 }}>
+            Company Name
+          </Button>
+          <Button onClick={() => handleSort("pptDate")} variant="contained" sx={{ mr: 1 }}>
+            PPT Date
+          </Button>
+          <Button onClick={() => handleSort("oaDate")} variant="contained" sx={{ mr: 1 }}>
+            OA Date
+          </Button>
+          <Button onClick={() => handleSort("stipend")} variant="contained">
+            Stipend
+          </Button>
+        </Box>
 
-      {/* Sort options */}
-      <div>
-        <span>Sort by: </span>
-        <button onClick={() => handleSort("companyName")}>Company Name</button>
-        <button onClick={() => handleSort("pptDate")}>PPT Date</button>
-        <button onClick={() => handleSort("oaDate")}>OA Date</button>
-        <button onClick={() => handleSort("stipend")}>Stipend</button>
-      </div>
-
-      {/* Listings Display */}
-      {filteredListings.length > 0 ? (
-        <div>
-          {filteredListings.map((group) => (
-            <div
-              key={group.companyName}
-              style={{
-                border: "1px solid #ccc",
-                padding: "10px",
-                marginBottom: "20px",
-              }}
-            >
-              <h3>{group.companyName}</h3>
-              <p>IITs that have listed this company:</p>
-              <ul>
-                {group.iits.map((listing) => (
-                  <li key={listing.id}>
-                    <button
-                      style={{
-                        backgroundColor: listing.openFor.includes("MTech")
-                          ? "green"
-                          : "red",
-                        color: "white",
-                        padding: "5px",
-                        marginRight: "10px",
-                      }}
-                      onClick={() => openModal(listing)}
-                    >
-                      {listing.iitName}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p>No listings found.</p>
-      )}
-
-      {/* Modal to show IIT-specific details */}
-      <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={closeModal}
-        style={customModalStyles}
-      >
-        {selectedListing && (
-          <div>
-            <h3>
-              {selectedListing.companyName} - {selectedListing.iitName}
-            </h3>
-            <p>
-              <strong>Job Type:</strong> {selectedListing.jobType}
-            </p>
-            <p>
-              <strong>Stipend:</strong> {selectedListing.stipend}
-            </p>
-            <p>
-              <strong>Role:</strong> {selectedListing.role}
-            </p>
-            <p>
-              <strong>HR Details:</strong> {selectedListing.hrDetails || "N/A"}
-            </p>
-            <p>
-              <strong>Open For:</strong> {selectedListing.openFor.join(", ")}
-            </p>
-            <p>
-              <strong>PPT Date:</strong> {selectedListing.pptDate || "N/A"}
-            </p>
-            <p>
-              <strong>OA Date:</strong> {selectedListing.oaDate || "N/A"}
-            </p>
-            <p>
-              <strong>Final Hiring Number:</strong>{" "}
-              {selectedListing.finalHiringNumber || "N/A"}
-            </p>
-            <p>
-              <strong>Mail Screenshot:</strong>{" "}
-              {selectedListing.mailScreenshot ? (
-                <a
-                  href={selectedListing.mailScreenshot}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  View Screenshot
-                </a>
-              ) : (
-                "N/A"
-              )}
-            </p>
-            <p>
-              <strong>Created At:</strong>{" "}
-              {new Date(
-                selectedListing.createdAt.seconds * 1000
-              ).toLocaleDateString()}
-            </p>
-            <button onClick={closeModal}>Close</button>
-          </div>
+        {/* Listings Display */}
+        {filteredListings.length > 0 ? (
+          <Grid container spacing={3}>
+            {filteredListings.map((group) => (
+              <Grid item xs={12} sm={6} md={4} key={group.companyName}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      {group.companyName}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      IITs that have listed this company:
+                    </Typography>
+                    <Box sx={{ mt: 2 }}>
+                      {group.iits.map((listing) => (
+                        <Button
+                          key={listing.id}
+                          variant="contained"
+                          color={listing.openFor.includes("MTech") ? "success" : "error"}
+                          sx={{ mb: 1, mr: 1 }}
+                          onClick={() => openModal(listing)}
+                        >
+                          {listing.iitName}
+                        </Button>
+                      ))}
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        ) : (
+          <Typography>No listings found.</Typography>
         )}
-      </Modal>
-    </div>
+
+        {/* Modal to show IIT-specific details */}
+        <Modal
+          isOpen={modalIsOpen}
+          onRequestClose={closeModal}
+          style={customModalStyles}
+        >
+          {selectedListing && (
+            <Box sx={{ p: 2 }}>
+              <Typography variant="h5" gutterBottom>
+                {selectedListing.companyName} - {selectedListing.iitName}
+              </Typography>
+              <Typography>
+                <strong>Job Type:</strong> {selectedListing.jobType}
+              </Typography>
+              <Typography>
+                <strong>Stipend:</strong> {selectedListing.stipend}
+              </Typography>
+              <Typography>
+                <strong>Role:</strong> {selectedListing.role}
+              </Typography>
+              <Typography>
+                <strong>HR Details:</strong> {selectedListing.hrDetails || "N/A"}
+              </Typography>
+              <Typography>
+                <strong>Open For:</strong> {selectedListing.openFor.join(", ")}
+              </Typography>
+              <Typography>
+                <strong>PPT Date:</strong> {selectedListing.pptDate || "N/A"}
+              </Typography>
+              <Typography>
+                <strong>OA Date:</strong> {selectedListing.oaDate || "N/A"}
+              </Typography>
+              <Typography>
+                <strong>Final Hiring Number:</strong>{" "}
+                {selectedListing.finalHiringNumber || "N/A"}
+              </Typography>
+              <Typography>
+                <strong>Mail Screenshot:</strong>{" "}
+                {selectedListing.mailScreenshot ? (
+                  <a
+                    href={selectedListing.mailScreenshot}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View Screenshot
+                  </a>
+                ) : (
+                  "N/A"
+                )}
+              </Typography>
+              <Typography>
+                <strong>Created At:</strong>{" "}
+                {new Date(
+                  selectedListing.createdAt.seconds * 1000
+                ).toLocaleDateString()}
+              </Typography>
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ mt: 2 }}
+                onClick={closeModal}
+              >
+                Close
+              </Button>
+            </Box>
+          )}
+        </Modal>
+      </Box>
+    </Container>
   );
 };
 

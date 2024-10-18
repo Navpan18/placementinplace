@@ -1,6 +1,29 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { db } from "../firebase"; // Firestore instance
 import { useAuth } from "../AuthContext"; // To get current user
+
+import Zoom from 'react-medium-image-zoom';
+import {
+  Container,
+  Typography,
+  Box,
+  TextField,
+  Button,
+  FormControl,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
+  Checkbox,
+  FormGroup,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Card,
+  CardContent,
+  CardActions
+} from "@mui/material";
 import {
   collection,
   query,
@@ -38,6 +61,8 @@ const MyListings = () => {
   const [modalLoading, setModalLoading] = useState(false); // Modal-specific loading
   const [modalIsOpen, setModalIsOpen] = useState(false); // Control modal visibility
   const fileInputRef = useRef(null); // Ref for file input
+  const [imageModalOpen, setImageModalOpen] = useState(false); // Control image modal visibility
+  const [selectedImage, setSelectedImage] = useState(""); // Store the image URL for modal
 
   const [formData, setFormData] = useState({
     companyName: "",
@@ -53,12 +78,15 @@ const MyListings = () => {
     iitName: "", // IIT Name field
     documentId: "", // Document ID field for identifying the listing
   });
-  const goToallListings = () => {
+
+  const goToAllListings = () => {
     navigate("/alllistings");
   };
+
   const goToDashboard = () => {
     navigate("/dashboard");
   };
+
   // Function to fetch listings
   const fetchListings = useCallback(async () => {
     try {
@@ -95,7 +123,6 @@ const MyListings = () => {
       .join(".");
 
     const uniqueFileName = `${fileNameWithoutExtension}_${Date.now()}`;
-    console.log(uniqueFileName);
 
     cloudinaryFormData.append("file", imageFile);
     cloudinaryFormData.append("upload_preset", "placement_default"); // Your upload preset
@@ -183,7 +210,7 @@ const MyListings = () => {
         iitName: formData.iitName,
       });
 
-      // Create new FormData for Google Sheets
+      // Submit the form data to Google Sheets
       const newFormData = new FormData();
       newFormData.append("documentId", formData.documentId); // Append documentId
       newFormData.append("companyName", formData.companyName);
@@ -198,7 +225,6 @@ const MyListings = () => {
       newFormData.append("finalHiringNumber", formData.finalHiringNumber);
       newFormData.append("iitName", formData.iitName);
 
-      // Submit the form data to Google Sheets
       const response = await fetch(
         "https://script.google.com/macros/s/AKfycbzqF8aBw9Qp422Z2mDf2XjPUtWL84Hoa5d0CXNqFeGCdtHu2Ybm4s80bfgyjBwyZFyRxw/exec",
         {
@@ -210,12 +236,10 @@ const MyListings = () => {
       const result = await response.text();
       console.log(result);
 
-      // After successful edit, reset the form and close the edit mode
       setModalIsOpen(false); // Close the modal after saving
       alert("Listing updated successfully!");
 
-      // Re-fetch the listings to show updated data
-      fetchListings();
+      fetchListings(); // Re-fetch the listings to show updated data
     } catch (error) {
       console.error("Error updating listing: ", error);
     } finally {
@@ -223,7 +247,15 @@ const MyListings = () => {
     }
   };
 
-  // Close modal function
+  const handleViewScreenshot = (imageUrl) => {
+    setSelectedImage(imageUrl);
+    setImageModalOpen(true);
+  };
+
+  const handleCloseImageModal = () => {
+    setImageModalOpen(false);
+  };
+
   const closeModal = () => {
     setModalIsOpen(false);
   };
@@ -233,226 +265,269 @@ const MyListings = () => {
   }
 
   return (
-    <div>
-      <h2>My Listings</h2>
-      <button onClick={goToallListings}>All Listings</button>
-      <button onClick={goToDashboard}>Back</button>
+    <Container maxWidth="md">
+      <Box sx={{ mt: 4, mb: 4, display: "flex", justifyContent: "space-between" }}>
+        <Typography variant="h4">My Listings</Typography>
+        <Box>
+          <Button onClick={goToAllListings} variant="contained" color="primary" sx={{ mr: 2 }}>
+            All Listings
+          </Button>
+          <Button onClick={goToDashboard} variant="outlined" color="secondary">
+            Back
+          </Button>
+        </Box>
+      </Box>
+
       {listings.length > 0 ? (
-        <ul>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: 'repeat(1, 1fr)', // 1 card on mobile
+              sm: 'repeat(2, 1fr)', // 2 cards on tablets
+              md: 'repeat(3, 1fr)', // 3 cards on desktops
+            },
+            gap: 3
+          }}
+        >
           {listings.map((listing) => (
-            <li key={listing.id}>
-              <strong>Company Name:</strong> {listing.companyName} <br />
-              <strong>Job Type:</strong> {listing.jobType} <br />
-              <strong>Stipend:</strong> {listing.stipend} <br />
-              <strong>Role:</strong> {listing.role} <br />
-              <strong>HR Details:</strong> {listing.hrDetails || "N/A"} <br />
-              <strong>Open For:</strong> {listing.openFor.join(", ") || "N/A"}{" "}
-              <br />
-              <strong>PPT Date:</strong> {listing.pptDate || "N/A"} <br />
-              <strong>OA Date:</strong> {listing.oaDate || "N/A"} <br />
-              <strong>Mail Screenshot:</strong>{" "}
-              {listing.mailScreenshot ? (
-                <a
-                  href={listing.mailScreenshot}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  View Screenshot
-                </a>
-              ) : (
-                "N/A"
-              )}{" "}
-              <br />
-              <strong>Final Hiring Number:</strong>{" "}
-              {listing.finalHiringNumber || "N/A"} <br />
-              <strong>IIT Name:</strong> {listing.iitName} <br />
-              <strong>Created At:</strong>{" "}
-              {new Date(listing.createdAt.seconds * 1000).toLocaleDateString()}{" "}
-              <br />
-              <button onClick={() => handleEditClick(listing)}>Edit</button>
-              <hr />
-            </li>
+            <Card key={listing.id} sx={{padding:2}}>
+              <CardContent>
+                <Typography variant="h6">{listing.companyName}</Typography>
+                <Typography>Job Type: {listing.jobType}</Typography>
+                <Typography>Stipend: {listing.stipend}</Typography>
+                <Typography>Role: {listing.role}</Typography>
+                <Typography>HR Details: {listing.hrDetails || "N/A"}</Typography>
+                <Typography>
+                  Open For: {listing.openFor.join(", ") || "N/A"}
+                </Typography>
+                <Typography>PPT Date: {listing.pptDate || "N/A"}</Typography>
+                <Typography>OA Date: {listing.oaDate || "N/A"}</Typography>
+                <Typography>
+                  Mail Screenshot:{" "}
+                  {listing.mailScreenshot ? (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleViewScreenshot(listing.mailScreenshot)}
+                    >
+                      View
+                    </Button>
+                  ) : (
+                    "N/A"
+                  )}
+                </Typography>
+                <Typography>
+                  Final Hiring Number: {listing.finalHiringNumber || "N/A"}
+                </Typography>
+                <Typography>IIT Name: {listing.iitName}</Typography>
+              </CardContent>
+              <CardActions>
+                <Button onClick={() => handleEditClick(listing)} variant="contained">
+                  Edit
+                </Button>
+              </CardActions>
+            </Card>
           ))}
-        </ul>
+        </Box>
       ) : (
-        <p>No listings found.</p>
+        <Typography>No listings found.</Typography>
       )}
+
+      {/* Modal to view image */}
+      <Dialog
+        open={imageModalOpen}
+        onClose={handleCloseImageModal}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>View Screenshot</DialogTitle>
+        <DialogContent>
+          {selectedImage && (
+            <Zoom>
+              <img
+                src={selectedImage}
+                alt="Screenshot"
+                style={{ width: "100%", maxHeight: "80vh", objectFit: "contain" }}
+              />
+            </Zoom>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseImageModal} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Edit form in a modal popup */}
       <Modal
         isOpen={modalIsOpen}
         onRequestClose={closeModal}
         contentLabel="Edit Listing Modal"
-        style={customStyles} // Apply custom styles to modal
+        style={customStyles}
       >
-        <h3>Edit Listing</h3>
+        <Typography variant="h6">Edit Listing</Typography>
         <form onSubmit={handleEditSubmit}>
-          <label>
-            Company Name:
-            <input
-              type="text"
-              name="companyName"
-              value={formData.companyName}
-              onChange={handleInputChange}
-              required
-              disabled={modalLoading}
-            />
-          </label>
-          <br />
-          <label>
-            Job Type:
-            <input
-              type="radio"
+          <TextField
+            label="Company Name"
+            name="companyName"
+            value={formData.companyName}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+            required
+            disabled={modalLoading}
+          />
+          <FormControl fullWidth margin="normal">
+            <Typography>Job Type:</Typography>
+            <RadioGroup
+              row
               name="jobType"
-              value="Intern"
-              checked={formData.jobType === "Intern"}
+              value={formData.jobType}
               onChange={handleInputChange}
               disabled={modalLoading}
-            />
-            Intern
-            <input
-              type="radio"
-              name="jobType"
-              value="FTE"
-              checked={formData.jobType === "FTE"}
-              onChange={handleInputChange}
-              disabled={modalLoading}
-            />
-            FTE
-          </label>
-          <br />
-          <label>
-            Stipend:
-            <input
-              type="number"
-              name="stipend"
-              value={formData.stipend}
-              onChange={handleInputChange}
-              required
-              disabled={modalLoading}
-            />
-          </label>
-          <br />
-          <label>
-            Role:
-            <input
-              type="text"
-              name="role"
-              value={formData.role}
-              onChange={handleInputChange}
-              required
-              disabled={modalLoading}
-            />
-          </label>
-          <br />
-          <label>
-            HR Details:
-            <input
-              type="text"
-              name="hrDetails"
-              value={formData.hrDetails}
-              onChange={handleInputChange}
-              placeholder="Enter HR contact details"
-              disabled={modalLoading}
-            />
-          </label>
-          <br />
-          <label>
-            Open For:
-            <input
-              type="checkbox"
-              name="openFor"
-              value="BTech"
-              checked={formData.openFor.includes("BTech")}
-              onChange={handleInputChange}
-              disabled={modalLoading}
-            />
-            BTech
-            <input
-              type="checkbox"
-              name="openFor"
-              value="IDD"
-              checked={formData.openFor.includes("IDD")}
-              onChange={handleInputChange}
-              disabled={modalLoading}
-            />
-            IDD
-            <input
-              type="checkbox"
-              name="openFor"
-              value="MTech"
-              checked={formData.openFor.includes("MTech")}
-              onChange={handleInputChange}
-              disabled={modalLoading}
-            />
-            MTech
-          </label>
-          <br />
-          <label>
-            PPT Date:
-            <input
-              type="date"
-              name="pptDate"
-              value={formData.pptDate}
-              onChange={handleInputChange}
-              disabled={modalLoading}
-            />
-          </label>
-          <br />
-          <label>
-            OA Date:
-            <input
-              type="date"
-              name="oaDate"
-              value={formData.oaDate}
-              onChange={handleInputChange}
-              disabled={modalLoading}
-            />
-          </label>
-          <br />
-          <label>
-            Mail Screenshot:
-            <input
-              type="file"
-              name="mailScreenshot"
-              ref={fileInputRef}
-              onChange={handleInputChange}
-              disabled={modalLoading}
-            />
-          </label>
-          <br />
-          <label>
-            Final Hiring Number:
-            <input
-              type="number"
-              name="finalHiringNumber"
-              value={formData.finalHiringNumber}
-              onChange={handleInputChange}
-              disabled={modalLoading}
-            />
-          </label>
-          <br />
-          <label>
-            IIT Name:
-            <input
-              type="text"
-              name="iitName"
-              value={formData.iitName}
-              onChange={handleInputChange}
-              required
-              disabled={modalLoading}
-            />
-          </label>
-          <br />
-          <button type="submit" disabled={modalLoading}>
-            {modalLoading ? "Saving..." : "Save Changes"}
-          </button>
-          <button type="button" onClick={closeModal} disabled={modalLoading}>
-            Cancel
-          </button>
+            >
+              <FormControlLabel value="Intern" control={<Radio />} label="Intern" />
+              <FormControlLabel value="FTE" control={<Radio />} label="FTE" />
+            </RadioGroup>
+          </FormControl>
+
+          <TextField
+            label="Stipend"
+            name="stipend"
+            type="number"
+            value={formData.stipend}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+            required
+            disabled={modalLoading}
+          />
+          <TextField
+            label="Role"
+            name="role"
+            value={formData.role}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+            required
+            disabled={modalLoading}
+          />
+          <TextField
+            label="HR Details"
+            name="hrDetails"
+            value={formData.hrDetails}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+            placeholder="Enter HR contact details"
+            disabled={modalLoading}
+          />
+          <FormControl margin="normal" fullWidth>
+            <Typography>Open For:</Typography>
+            <FormGroup row>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name="openFor"
+                    value="BTech"
+                    checked={formData.openFor.includes("BTech")}
+                    onChange={handleInputChange}
+                    disabled={modalLoading}
+                  />
+                }
+                label="BTech"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name="openFor"
+                    value="IDD"
+                    checked={formData.openFor.includes("IDD")}
+                    onChange={handleInputChange}
+                    disabled={modalLoading}
+                  />
+                }
+                label="IDD"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name="openFor"
+                    value="MTech"
+                    checked={formData.openFor.includes("MTech")}
+                    onChange={handleInputChange}
+                    disabled={modalLoading}
+                  />
+                }
+                label="MTech"
+              />
+            </FormGroup>
+          </FormControl>
+
+          <TextField
+            label="PPT Date"
+            name="pptDate"
+            type="date"
+            value={formData.pptDate}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+            InputLabelProps={{ shrink: true }}
+            disabled={modalLoading}
+          />
+          <TextField
+            label="OA Date"
+            name="oaDate"
+            type="date"
+            value={formData.oaDate}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+            InputLabelProps={{ shrink: true }}
+            disabled={modalLoading}
+          />
+          <Typography>Mail Screenshot:</Typography>
+          <input
+            type="file"
+            name="mailScreenshot"
+            ref={fileInputRef}
+            onChange={handleInputChange}
+            disabled={modalLoading}
+            style={{ marginBottom: "16px" }}
+          />
+          <TextField
+            label="Final Hiring Number"
+            name="finalHiringNumber"
+            type="number"
+            value={formData.finalHiringNumber}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+            disabled={modalLoading}
+          />
+          <TextField
+            label="IIT Name"
+            name="iitName"
+            value={formData.iitName}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+            required
+            disabled={modalLoading}
+          />
+          <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
+            <Button type="submit" variant="contained" disabled={modalLoading}>
+              {modalLoading ? "Saving..." : "Save Changes"}
+            </Button>
+            <Button type="button" onClick={closeModal} variant="outlined" disabled={modalLoading}>
+              Cancel
+            </Button>
+          </Box>
         </form>
       </Modal>
-    </div>
+    </Container>
   );
 };
 

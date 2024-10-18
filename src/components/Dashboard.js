@@ -3,6 +3,22 @@ import React, { useRef, useState } from "react";
 import { useAuth } from "../AuthContext";
 import { useNavigate } from "react-router-dom";
 import { db, auth } from "../firebase"; // Import Firestore and Firebase Auth
+import {
+  TextField,
+  Button,
+  Container,
+  Typography,
+  Box,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  Checkbox,
+  FormGroup,
+  Alert,
+} from "@mui/material";
+
 import { collection, doc, setDoc } from "firebase/firestore"; // Firestore methods
 
 const Dashboard = () => {
@@ -195,143 +211,160 @@ const Dashboard = () => {
   };
 
   return (
-    <div>
-      <h2>Welcome, {currentUser.email}</h2>
-      <button onClick={handleLogout}>Log Out</button>
+    <Container maxWidth="md">
+      <Box sx={{ mt: 4, mb: 4 }}>
+        <Typography variant="h4" gutterBottom>
+          Welcome, {currentUser.email}
+        </Typography>
+        {/* Top Section: My Listings, All Listings on the left; Log Out on the right */}
+      <Box
+        sx={{
+          mt: 4,
+          mb: 4,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        {/* Left side buttons: My Listings, All Listings */}
+        <Box>
+          <Button onClick={goToMyListings} variant="outlined" color="primary" sx={{ mr: 2 }}>
+            My Listings
+          </Button>
+          <Button onClick={goToallListings} variant="outlined" color="primary">
+            All Listings
+          </Button>
+        </Box>
 
-      {/* Add a button to route to the My Listings page */}
-      <button onClick={goToMyListings}>View My Listings</button>
-      <button onClick={goToallListings}>All Listings</button>
+        {/* Right side: Log Out */}
+        <Button onClick={handleLogout} variant="outlined" color="error">
+          Log Out
+        </Button>
+      </Box>
+      </Box>
+
       <form onSubmit={handleSubmit}>
-        {/* Company Name */}
-        <div>
-          <input
-            type="hidden"
-            name="documentId"
-            value={formData.documentId}
-            onChange={handleChange}
-          />
-          <label>Company Name:</label>
-          <input
-            type="text"
+        <FormControl fullWidth margin="normal">
+          <TextField
+            label="Company Name"
             name="companyName"
             value={formData.companyName}
             onChange={handleChange}
-            placeholder="Enter company name"
             required
           />
-        </div>
+        </FormControl>
 
-        {/* Intern or FTE */}
-        <div>
-          <label>Intern or FTE:</label>
-          <input
-            type="radio"
-            name="jobType"
-            value="Intern"
-            checked={formData.jobType === "Intern"}
-            onChange={handleChange}
-          />{" "}
-          Intern
-          <input
-            type="radio"
-            name="jobType"
-            value="FTE"
-            checked={formData.jobType === "FTE"}
-            onChange={handleChange}
-          />{" "}
-          FTE
-        </div>
-
-        {/* Stipend Amount */}
-        <div>
-          <label>Stipend Amount:</label>
-          <input
-            type="number"
+        <FormControl fullWidth margin="normal">
+  <FormLabel>Job Type</FormLabel>
+  <RadioGroup
+    row // Add 'row' prop to display radio buttons horizontally
+    name="jobType"
+    value={formData.jobType}
+    onChange={handleChange}
+  >
+    <FormControlLabel
+      value="Intern"
+      control={<Radio />}
+      label="Intern"
+    />
+    <FormControlLabel
+      value="FTE"
+      control={<Radio />}
+      label="FTE"
+    />
+  </RadioGroup>
+</FormControl>
+        <FormControl fullWidth margin="normal">
+          <TextField
+            label="Stipend"
             name="stipend"
+            type="number"
             value={formData.stipend}
             onChange={handleChange}
-            placeholder="Enter stipend amount"
             required
           />
-        </div>
-        {/* role */}
-        <div>
-          <label>Role:</label>
-          <input
-            type="text"
+        </FormControl>
+
+        <FormControl fullWidth margin="normal">
+          <TextField
+            label="Role"
             name="role"
             value={formData.role}
             onChange={handleChange}
-            placeholder="Enter your role"
           />
-        </div>
-        {/* HR Details (Optional) */}
-        <div>
-          <label>HR Details (if available):</label>
-          <input
-            type="text"
+        </FormControl>
+
+        <FormControl fullWidth margin="normal">
+          <TextField
+            label="HR Details (Optional)"
             name="hrDetails"
             value={formData.hrDetails}
             onChange={handleChange}
-            placeholder="Enter HR contact details"
           />
-        </div>
+        </FormControl>
 
-        {/* Open For (BTech, IDD, MTech) */}
-        <div>
-          <label>Open For:</label>
-          <input
-            type="checkbox"
-            name="openFor"
-            value="BTech"
-            checked={formData.openFor.includes("BTech")}
-            onChange={handleChange}
-          />{" "}
-          BTech
-          <input
-            type="checkbox"
-            name="openFor"
-            value="IDD"
-            checked={formData.openFor.includes("IDD")}
-            onChange={handleChange}
-          />{" "}
-          IDD
-          <input
-            type="checkbox"
-            name="openFor"
-            value="MTech"
-            checked={formData.openFor.includes("MTech")}
-            onChange={handleChange}
-          />{" "}
-          MTech
-        </div>
-
-        {/* PPT Date */}
-        <div>
-          <label>PPT Date:</label>
-          <input
-            type="date"
+        <FormControl margin="normal" fullWidth>
+  <FormLabel>Open For</FormLabel>
+  <FormGroup row> {/* Add 'row' prop to display checkboxes horizontally */}
+    <FormControlLabel
+      control={
+        <Checkbox
+          name="openFor"
+          value="BTech"
+          checked={formData.openFor.includes("BTech")}
+          onChange={handleChange}
+        />
+      }
+      label="BTech"
+    />
+    <FormControlLabel
+      control={
+        <Checkbox
+          name="openFor"
+          value="IDD"
+          checked={formData.openFor.includes("IDD")}
+          onChange={handleChange}
+        />
+      }
+      label="IDD"
+    />
+    <FormControlLabel
+      control={
+        <Checkbox
+          name="openFor"
+          value="MTech"
+          checked={formData.openFor.includes("MTech")}
+          onChange={handleChange}
+        />
+      }
+      label="MTech"
+    />
+  </FormGroup>
+</FormControl>
+        <FormControl fullWidth margin="normal">
+          <TextField
+            label="PPT Date"
             name="pptDate"
+            type="date"
+            InputLabelProps={{ shrink: true }}
             value={formData.pptDate}
             onChange={handleChange}
           />
-        </div>
+        </FormControl>
 
-        {/* OA Date */}
-        <div>
-          <label>OA Date:</label>
-          <input
-            type="date"
+        <FormControl fullWidth margin="normal">
+          <TextField
+            label="OA Date"
             name="oaDate"
+            type="date"
+            InputLabelProps={{ shrink: true }}
             value={formData.oaDate}
             onChange={handleChange}
           />
-        </div>
+        </FormControl>
 
-        {/* Mail Screenshot (file upload) */}
-        <div>
-          <label>Mail Screenshot or any proof of opening for Mtechs :</label>
+        <FormControl fullWidth margin="normal">
+          <FormLabel>Mail Screenshot (file upload)</FormLabel>
           <input
             type="file"
             name="mailScreenshot"
@@ -340,38 +373,40 @@ const Dashboard = () => {
             ref={fileInputRef}
             required
           />
-        </div>
+        </FormControl>
 
-        {/* Final Hiring Number */}
-        <div>
-          <label>Final Hiring Number:</label>
-          <input
-            type="number"
+        <FormControl fullWidth margin="normal">
+          <TextField
+            label="Final Hiring Number"
             name="finalHiringNumber"
+            type="number"
             value={formData.finalHiringNumber}
             onChange={handleChange}
-            placeholder="To be edited later"
           />
-        </div>
+        </FormControl>
 
-        {/* IIT Name */}
-        <div>
-          <label>IIT Name:</label>
-          <input
-            type="text"
+        <FormControl fullWidth margin="normal">
+          <TextField
+            label="IIT Name"
             name="iitName"
             value={formData.iitName}
             onChange={handleChange}
-            placeholder="Enter IIT name"
             required
           />
-        </div>
+        </FormControl>
 
-        <button type="submit" disabled={loading}>
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          fullWidth
+          sx={{ mt: 3 }}
+          disabled={loading}
+        >
           {loading ? "Submitting..." : "Submit"}
-        </button>
+        </Button>
       </form>
-    </div>
+    </Container>
   );
 };
 export default Dashboard;
