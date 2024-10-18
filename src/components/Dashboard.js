@@ -190,6 +190,9 @@ const Dashboard = () => {
   const goToMyListings = () => {
     navigate("/mylistings");
   };
+  const goToallListings = () => {
+    navigate("/alllistings");
+  };
 
   return (
     <div>
@@ -198,7 +201,7 @@ const Dashboard = () => {
 
       {/* Add a button to route to the My Listings page */}
       <button onClick={goToMyListings}>View My Listings</button>
-
+      <button onClick={goToallListings}>All Listings</button>
       <form onSubmit={handleSubmit}>
         {/* Company Name */}
         <div>

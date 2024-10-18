@@ -10,6 +10,7 @@ import {
   updateDoc,
 } from "firebase/firestore"; // Firestore methods
 import Modal from "react-modal"; // Import the Modal component
+import { useNavigate } from "react-router-dom";
 
 // Modal styling
 const customStyles = {
@@ -30,6 +31,7 @@ const customStyles = {
 };
 
 const MyListings = () => {
+  const navigate = useNavigate();
   const { currentUser } = useAuth(); // Get the current logged-in user
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true); // General page loading
@@ -51,7 +53,12 @@ const MyListings = () => {
     iitName: "", // IIT Name field
     documentId: "", // Document ID field for identifying the listing
   });
-
+  const goToallListings = () => {
+    navigate("/alllistings");
+  };
+  const goToDashboard = () => {
+    navigate("/dashboard");
+  };
   // Function to fetch listings
   const fetchListings = useCallback(async () => {
     try {
@@ -228,6 +235,8 @@ const MyListings = () => {
   return (
     <div>
       <h2>My Listings</h2>
+      <button onClick={goToallListings}>All Listings</button>
+      <button onClick={goToDashboard}>Back</button>
       {listings.length > 0 ? (
         <ul>
           {listings.map((listing) => (
