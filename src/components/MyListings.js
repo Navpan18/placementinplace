@@ -248,8 +248,7 @@ const MyListings = () => {
   };
 
   const handleViewScreenshot = (imageUrl) => {
-    setSelectedImage(imageUrl);
-    setImageModalOpen(true);
+    window.open(imageUrl, "_blank");
   };
 
   const handleCloseImageModal = () => {
@@ -291,7 +290,7 @@ const MyListings = () => {
           }}
         >
           {listings.map((listing) => (
-            <Card key={listing.id} sx={{padding:2}}>
+            <Card key={listing.id} sx={{ padding: 2 }}>
               <CardContent>
                 <Typography variant="h6">{listing.companyName}</Typography>
                 <Typography>Job Type: {listing.jobType}</Typography>

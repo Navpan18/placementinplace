@@ -183,7 +183,7 @@ const Dashboard = () => {
         companyName: "",
         jobType: "Intern", // Default to Intern
         stipend: "",
-        role:"",
+        role: "",
         hrDetails: "",
         openFor: [], // Reset the checkboxes
         pptDate: "",
@@ -217,30 +217,30 @@ const Dashboard = () => {
           Welcome, {currentUser.email}
         </Typography>
         {/* Top Section: My Listings, All Listings on the left; Log Out on the right */}
-      <Box
-        sx={{
-          mt: 4,
-          mb: 4,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        {/* Left side buttons: My Listings, All Listings */}
-        <Box>
-          <Button onClick={goToMyListings} variant="outlined" color="primary" sx={{ mr: 2 }}>
-            My Listings
-          </Button>
-          <Button onClick={goToallListings} variant="outlined" color="primary">
-            All Listings
+        <Box
+          sx={{
+            mt: 4,
+            mb: 4,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          {/* Left side buttons: My Listings, All Listings */}
+          <Box>
+            <Button onClick={goToMyListings} variant="outlined" color="primary" sx={{ mr: 2 }}>
+              My Listings
+            </Button>
+            <Button onClick={goToallListings} variant="outlined" color="primary">
+              All Listings
+            </Button>
+          </Box>
+
+          {/* Right side: Log Out */}
+          <Button onClick={handleLogout} variant="outlined" color="error">
+            Log Out
           </Button>
         </Box>
-
-        {/* Right side: Log Out */}
-        <Button onClick={handleLogout} variant="outlined" color="error">
-          Log Out
-        </Button>
-      </Box>
       </Box>
 
       <form onSubmit={handleSubmit}>
@@ -255,25 +255,25 @@ const Dashboard = () => {
         </FormControl>
 
         <FormControl fullWidth margin="normal">
-  <FormLabel>Job Type</FormLabel>
-  <RadioGroup
-    row // Add 'row' prop to display radio buttons horizontally
-    name="jobType"
-    value={formData.jobType}
-    onChange={handleChange}
-  >
-    <FormControlLabel
-      value="Intern"
-      control={<Radio />}
-      label="Intern"
-    />
-    <FormControlLabel
-      value="FTE"
-      control={<Radio />}
-      label="FTE"
-    />
-  </RadioGroup>
-</FormControl>
+          <FormLabel>Job Type</FormLabel>
+          <RadioGroup
+            row // Add 'row' prop to display radio buttons horizontally
+            name="jobType"
+            value={formData.jobType}
+            onChange={handleChange}
+          >
+            <FormControlLabel
+              value="Intern"
+              control={<Radio />}
+              label="Intern"
+            />
+            <FormControlLabel
+              value="FTE"
+              control={<Radio />}
+              label="FTE"
+            />
+          </RadioGroup>
+        </FormControl>
         <FormControl fullWidth margin="normal">
           <TextField
             label="Stipend"
@@ -304,43 +304,43 @@ const Dashboard = () => {
         </FormControl>
 
         <FormControl margin="normal" fullWidth>
-  <FormLabel>Open For</FormLabel>
-  <FormGroup row> {/* Add 'row' prop to display checkboxes horizontally */}
-    <FormControlLabel
-      control={
-        <Checkbox
-          name="openFor"
-          value="BTech"
-          checked={formData.openFor.includes("BTech")}
-          onChange={handleChange}
-        />
-      }
-      label="BTech"
-    />
-    <FormControlLabel
-      control={
-        <Checkbox
-          name="openFor"
-          value="IDD"
-          checked={formData.openFor.includes("IDD")}
-          onChange={handleChange}
-        />
-      }
-      label="IDD"
-    />
-    <FormControlLabel
-      control={
-        <Checkbox
-          name="openFor"
-          value="MTech"
-          checked={formData.openFor.includes("MTech")}
-          onChange={handleChange}
-        />
-      }
-      label="MTech"
-    />
-  </FormGroup>
-</FormControl>
+          <FormLabel>Open For</FormLabel>
+          <FormGroup row> {/* Add 'row' prop to display checkboxes horizontally */}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="openFor"
+                  value="BTech"
+                  checked={formData.openFor.includes("BTech")}
+                  onChange={handleChange}
+                />
+              }
+              label="BTech"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="openFor"
+                  value="IDD"
+                  checked={formData.openFor.includes("IDD")}
+                  onChange={handleChange}
+                />
+              }
+              label="IDD"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="openFor"
+                  value="MTech"
+                  checked={formData.openFor.includes("MTech")}
+                  onChange={handleChange}
+                />
+              }
+              label="MTech"
+            />
+          </FormGroup>
+        </FormControl>
         <FormControl fullWidth margin="normal">
           <TextField
             label="PPT Date"
